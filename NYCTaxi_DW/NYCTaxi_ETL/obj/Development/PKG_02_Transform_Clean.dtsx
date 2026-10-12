@@ -1,0 +1,435 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/11/2026 3:46:07 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="THUONGNGUYEN"
+  DTS:CreatorName="THUONGNGUYEN\ADMIN"
+  DTS:DTSID="{3D167B1D-9E87-4AA5-AD5D-AD6FF256D165}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="PKG_02_Transform_Clean"
+  DTS:PackageType="5"
+  DTS:VersionBuild="13"
+  DTS:VersionGUID="{824D9930-D618-4DF1-A28F-FAFF66046C96}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Data Flow Task"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{91221552-8E4E-4188-9BBE-950A89C9F0A9}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Data Flow Task">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\EST_Transform_FHV"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{674592DF-297E-4EE5-9239-03D1FD08FC67}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="EST_Transform_FHV"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{428D3CB7-3BB4-4D96-8F32-4EE97109955B}"
+          SQLTask:SqlStatementSource="SET NOCOUNT ON;&#xA;&#xA;IF OBJECT_ID('clean.Trip', 'U') IS NULL&#xA;    THROW 50001, 'Chay 00_setup_clean.sql truoc.', 1;&#xA;&#xA;DELETE FROM clean.Trip&#xA;WHERE TaxiType = 'FHV';&#xA;&#xA;;WITH S AS&#xA;(&#xA;    SELECT TOP (100000)&#xA;        NULLIF(&#xA;            LTRIM(RTRIM(dispatching_base_num)),&#xA;            ''&#xA;        ) AS DispatchingBaseNum,&#xA;&#xA;        NULLIF(&#xA;            LTRIM(RTRIM(Affiliated_base_number)),&#xA;            ''&#xA;        ) AS AffiliatedBaseNum,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(pickup_datetime)), '')&#xA;        ) AS PickupDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(dropOff_datetime)), '')&#xA;        ) AS DropoffDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(PULocationID)), '')&#xA;        ) AS PULocationID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(DOLocationID)), '')&#xA;        ) AS DOLocationID,&#xA;&#xA;        UPPER(&#xA;            NULLIF(LTRIM(RTRIM(SR_Flag)), '')&#xA;        ) AS SharedRequestFlag&#xA;    FROM stg.FHVTrip&#xA;),&#xA;T AS&#xA;(&#xA;    SELECT&#xA;        *,&#xA;        CASE&#xA;            WHEN PickupDT IS NULL&#xA;              OR DropoffDT IS NULL&#xA;              OR DropoffDT &lt;= PickupDT&#xA;              OR DATEDIFF_BIG(SECOND, PickupDT, DropoffDT) &gt; 172800&#xA;            THEN CONVERT(BIT, 0)&#xA;            ELSE CONVERT(BIT, 1)&#xA;        END AS IsCoreValid,&#xA;&#xA;        NULLIF(&#xA;            CONCAT(&#xA;                CASE WHEN PickupDT IS NULL&#xA;                     THEN 'PICKUP_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN DropoffDT IS NULL&#xA;                     THEN 'DROPOFF_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN PickupDT IS NOT NULL&#xA;                           AND DropoffDT IS NOT NULL&#xA;                           AND DropoffDT &lt;= PickupDT&#xA;                     THEN 'DURATION_NON_POSITIVE;' ELSE '' END,&#xA;&#xA;                CASE WHEN PickupDT IS NOT NULL&#xA;                           AND DropoffDT IS NOT NULL&#xA;                           AND DATEDIFF_BIG(&#xA;                               SECOND,&#xA;                               PickupDT,&#xA;                               DropoffDT&#xA;                           ) &gt; 172800&#xA;                     THEN 'DURATION_OVER_48H;' ELSE '' END&#xA;            ),&#xA;            ''&#xA;        ) AS QualityIssue&#xA;    FROM S&#xA;)&#xA;INSERT INTO clean.Trip&#xA;(&#xA;    TaxiType,&#xA;    DispatchingBaseNum,&#xA;    AffiliatedBaseNum,&#xA;    PickupDateTime,&#xA;    DropoffDateTime,&#xA;    TripDurationSeconds,&#xA;    PULocationID,&#xA;    DOLocationID,&#xA;    SharedRequestFlag,&#xA;    IsTotalCalculated,&#xA;    IsCoreValid,&#xA;    QualityIssue&#xA;)&#xA;SELECT&#xA;    'FHV',&#xA;    DispatchingBaseNum,&#xA;    AffiliatedBaseNum,&#xA;    PickupDT,&#xA;    DropoffDT,&#xA;    CASE&#xA;        WHEN PickupDT IS NOT NULL AND DropoffDT IS NOT NULL&#xA;        THEN DATEDIFF_BIG(SECOND, PickupDT, DropoffDT)&#xA;    END,&#xA;    PULocationID,&#xA;    DOLocationID,&#xA;    SharedRequestFlag,&#xA;    0,&#xA;    IsCoreValid,&#xA;    QualityIssue&#xA;FROM T;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\EST_Transform_FHVHV"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3F8B5B11-AEFF-47E0-B53C-71E89F291F8F}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="EST_Transform_FHVHV"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{428D3CB7-3BB4-4D96-8F32-4EE97109955B}"
+          SQLTask:SqlStatementSource="SET NOCOUNT ON;&#xA;&#xA;IF OBJECT_ID('clean.Trip', 'U') IS NULL&#xA;    THROW 50001, 'Chay 00_setup_clean.sql truoc.', 1;&#xA;&#xA;DELETE FROM clean.Trip&#xA;WHERE TaxiType = 'FHVHV';&#xA;&#xA;;WITH S AS&#xA;(&#xA;    SELECT TOP (100000)&#xA;        NULLIF(&#xA;            LTRIM(RTRIM(hvfhs_license_num)),&#xA;            ''&#xA;        ) AS HVFHSLicenseNum,&#xA;&#xA;        NULLIF(&#xA;            LTRIM(RTRIM(dispatching_base_num)),&#xA;            ''&#xA;        ) AS DispatchingBaseNum,&#xA;&#xA;        NULLIF(&#xA;            LTRIM(RTRIM(originating_base_num)),&#xA;            ''&#xA;        ) AS OriginatingBaseNum,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(request_datetime)), '')&#xA;        ) AS RequestDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(on_scene_datetime)), '')&#xA;        ) AS OnSceneDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(pickup_datetime)), '')&#xA;        ) AS PickupDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(dropoff_datetime)), '')&#xA;        ) AS DropoffDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(PULocationID)), '')&#xA;        ) AS PULocationID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(DOLocationID)), '')&#xA;        ) AS DOLocationID,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(12,3),&#xA;            NULLIF(LTRIM(RTRIM(trip_miles)), '')&#xA;        ) AS TripDistance,&#xA;&#xA;        TRY_CONVERT(&#xA;            BIGINT,&#xA;            NULLIF(LTRIM(RTRIM(trip_time)), '')&#xA;        ) AS SourceTripTime,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(base_passenger_fare)), '')&#xA;        ) AS FareAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(tolls)), '')&#xA;        ) AS TollsAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(bcf)), '')&#xA;        ) AS BCFAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(sales_tax)), '')&#xA;        ) AS SalesTaxAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(congestion_surcharge)), '')&#xA;        ) AS CongestionSurcharge,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(airport_fee)), '')&#xA;        ) AS AirportFee,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(tips)), '')&#xA;        ) AS TipAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(driver_pay)), '')&#xA;        ) AS DriverPayAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(cbd_congestion_fee)), '')&#xA;        ) AS CBDCongestionFee,&#xA;&#xA;        UPPER(&#xA;            NULLIF(LTRIM(RTRIM(shared_request_flag)), '')&#xA;        ) AS SharedRequestFlag,&#xA;&#xA;        UPPER(&#xA;            NULLIF(LTRIM(RTRIM(shared_match_flag)), '')&#xA;        ) AS SharedMatchFlag,&#xA;&#xA;        UPPER(&#xA;            NULLIF(LTRIM(RTRIM(access_a_ride_flag)), '')&#xA;        ) AS AccessARideFlag,&#xA;&#xA;        UPPER(&#xA;            NULLIF(LTRIM(RTRIM(wav_request_flag)), '')&#xA;        ) AS WAVRequestFlag,&#xA;&#xA;        UPPER(&#xA;            NULLIF(LTRIM(RTRIM(wav_match_flag)), '')&#xA;        ) AS WAVMatchFlag&#xA;    FROM stg.FHVHVTrip&#xA;),&#xA;T AS&#xA;(&#xA;    SELECT&#xA;        *,&#xA;&#xA;        COALESCE&#xA;        (&#xA;            SourceTripTime,&#xA;            CASE&#xA;                WHEN PickupDT IS NOT NULL AND DropoffDT IS NOT NULL&#xA;                THEN DATEDIFF_BIG(SECOND, PickupDT, DropoffDT)&#xA;            END&#xA;        ) AS DurationSeconds,&#xA;&#xA;        CAST&#xA;        (&#xA;            COALESCE(FareAmount, 0)&#xA;            + COALESCE(TollsAmount, 0)&#xA;            + COALESCE(BCFAmount, 0)&#xA;            + COALESCE(SalesTaxAmount, 0)&#xA;            + COALESCE(CongestionSurcharge, 0)&#xA;            + COALESCE(AirportFee, 0)&#xA;            + COALESCE(TipAmount, 0)&#xA;            + COALESCE(CBDCongestionFee, 0)&#xA;            AS DECIMAL(18,2)&#xA;        ) AS CalculatedTotal&#xA;    FROM S&#xA;),&#xA;Q AS&#xA;(&#xA;    SELECT&#xA;        *,&#xA;        CASE&#xA;            WHEN PickupDT IS NULL&#xA;              OR DropoffDT IS NULL&#xA;              OR DropoffDT &lt;= PickupDT&#xA;              OR DurationSeconds &lt;= 0&#xA;              OR DurationSeconds &gt; 172800&#xA;              OR TripDistance &lt; 0&#xA;            THEN CONVERT(BIT, 0)&#xA;            ELSE CONVERT(BIT, 1)&#xA;        END AS IsCoreValid,&#xA;&#xA;        NULLIF(&#xA;            CONCAT(&#xA;                CASE WHEN RequestDT IS NULL&#xA;                     THEN 'REQUEST_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN PickupDT IS NULL&#xA;                     THEN 'PICKUP_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN DropoffDT IS NULL&#xA;                     THEN 'DROPOFF_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN PickupDT IS NOT NULL&#xA;                           AND DropoffDT IS NOT NULL&#xA;                           AND DropoffDT &lt;= PickupDT&#xA;                     THEN 'DURATION_NON_POSITIVE;' ELSE '' END,&#xA;&#xA;                CASE WHEN DurationSeconds &gt; 172800&#xA;                     THEN 'DURATION_OVER_48H;' ELSE '' END,&#xA;&#xA;                CASE WHEN TripDistance &lt; 0&#xA;                     THEN 'DISTANCE_NEGATIVE;' ELSE '' END,&#xA;&#xA;                CASE WHEN CalculatedTotal &lt; 0&#xA;                     THEN 'TOTAL_NEGATIVE;' ELSE '' END&#xA;            ),&#xA;            ''&#xA;        ) AS QualityIssue&#xA;    FROM T&#xA;)&#xA;INSERT INTO clean.Trip&#xA;(&#xA;    TaxiType,&#xA;    HVFHSLicenseNum,&#xA;    DispatchingBaseNum,&#xA;    OriginatingBaseNum,&#xA;    RequestDateTime,&#xA;    OnSceneDateTime,&#xA;    PickupDateTime,&#xA;    DropoffDateTime,&#xA;    TripDurationSeconds,&#xA;    PULocationID,&#xA;    DOLocationID,&#xA;    TripDistanceMiles,&#xA;    FareAmount,&#xA;    TipAmount,&#xA;    TollsAmount,&#xA;    CongestionSurcharge,&#xA;    AirportFee,&#xA;    CBDCongestionFee,&#xA;    BCFAmount,&#xA;    SalesTaxAmount,&#xA;    DriverPayAmount,&#xA;    TotalAmount,&#xA;    IsTotalCalculated,&#xA;    SharedRequestFlag,&#xA;    SharedMatchFlag,&#xA;    AccessARideFlag,&#xA;    WAVRequestFlag,&#xA;    WAVMatchFlag,&#xA;    IsCoreValid,&#xA;    QualityIssue&#xA;)&#xA;SELECT&#xA;    'FHVHV',&#xA;    HVFHSLicenseNum,&#xA;    DispatchingBaseNum,&#xA;    OriginatingBaseNum,&#xA;    RequestDT,&#xA;    OnSceneDT,&#xA;    PickupDT,&#xA;    DropoffDT,&#xA;    DurationSeconds,&#xA;    PULocationID,&#xA;    DOLocationID,&#xA;    TripDistance,&#xA;    FareAmount,&#xA;    TipAmount,&#xA;    TollsAmount,&#xA;    CongestionSurcharge,&#xA;    AirportFee,&#xA;    CBDCongestionFee,&#xA;    BCFAmount,&#xA;    SalesTaxAmount,&#xA;    DriverPayAmount,&#xA;    CalculatedTotal,&#xA;    1,&#xA;    SharedRequestFlag,&#xA;    SharedMatchFlag,&#xA;    AccessARideFlag,&#xA;    WAVRequestFlag,&#xA;    WAVMatchFlag,&#xA;    IsCoreValid,&#xA;    QualityIssue&#xA;FROM Q;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\EST_Transform_Green"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{D4853C5B-C483-4FE0-A539-A895D9D216BB}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="EST_Transform_Green"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{428D3CB7-3BB4-4D96-8F32-4EE97109955B}"
+          SQLTask:SqlStatementSource="SET NOCOUNT ON;&#xA;&#xA;IF OBJECT_ID('clean.Trip', 'U') IS NULL&#xA;    THROW 50001, 'Chay 00_setup_clean.sql truoc.', 1;&#xA;&#xA;DELETE FROM clean.Trip&#xA;WHERE TaxiType = 'GREEN';&#xA;&#xA;;WITH S AS&#xA;(&#xA;    SELECT TOP (100000)&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(VendorID)), '')&#xA;        ) AS VendorID,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(lpep_pickup_datetime)), '')&#xA;        ) AS PickupDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(lpep_dropoff_datetime)), '')&#xA;        ) AS DropoffDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(PULocationID)), '')&#xA;        ) AS PULocationID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(DOLocationID)), '')&#xA;        ) AS DOLocationID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(passenger_count)), '')&#xA;        ) AS PassengerCount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(12,3),&#xA;            NULLIF(LTRIM(RTRIM(trip_distance)), '')&#xA;        ) AS TripDistance,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(RatecodeID)), '')&#xA;        ) AS RateCodeID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(payment_type)), '')&#xA;        ) AS PaymentTypeID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(trip_type)), '')&#xA;        ) AS TripTypeID,&#xA;&#xA;        UPPER(&#xA;            NULLIF(LTRIM(RTRIM(store_and_fwd_flag)), '')&#xA;        ) AS StoreAndFwdFlag,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(fare_amount)), '')&#xA;        ) AS FareAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(extra)), '')&#xA;        ) AS ExtraAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(mta_tax)), '')&#xA;        ) AS MTATax,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(tip_amount)), '')&#xA;        ) AS TipAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(tolls_amount)), '')&#xA;        ) AS TollsAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(improvement_surcharge)), '')&#xA;        ) AS ImprovementSurcharge,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(congestion_surcharge)), '')&#xA;        ) AS CongestionSurcharge,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(cbd_congestion_fee)), '')&#xA;        ) AS CBDCongestionFee,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(total_amount)), '')&#xA;        ) AS TotalAmount&#xA;    FROM stg.GreenTrip&#xA;),&#xA;T AS&#xA;(&#xA;    SELECT&#xA;        *,&#xA;        CASE&#xA;            WHEN PickupDT IS NULL&#xA;              OR DropoffDT IS NULL&#xA;              OR DropoffDT &lt;= PickupDT&#xA;              OR DATEDIFF_BIG(SECOND, PickupDT, DropoffDT) &gt; 172800&#xA;              OR TripDistance &lt; 0&#xA;            THEN CONVERT(BIT, 0)&#xA;            ELSE CONVERT(BIT, 1)&#xA;        END AS IsCoreValid,&#xA;&#xA;        NULLIF(&#xA;            CONCAT(&#xA;                CASE WHEN PickupDT IS NULL&#xA;                     THEN 'PICKUP_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN DropoffDT IS NULL&#xA;                     THEN 'DROPOFF_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN PickupDT IS NOT NULL&#xA;                           AND DropoffDT IS NOT NULL&#xA;                           AND DropoffDT &lt;= PickupDT&#xA;                     THEN 'DURATION_NON_POSITIVE;' ELSE '' END,&#xA;&#xA;                CASE WHEN PickupDT IS NOT NULL&#xA;                           AND DropoffDT IS NOT NULL&#xA;                           AND DATEDIFF_BIG(&#xA;                               SECOND,&#xA;                               PickupDT,&#xA;                               DropoffDT&#xA;                           ) &gt; 172800&#xA;                     THEN 'DURATION_OVER_48H;' ELSE '' END,&#xA;&#xA;                CASE WHEN TripDistance &lt; 0&#xA;                     THEN 'DISTANCE_NEGATIVE;' ELSE '' END,&#xA;&#xA;                CASE WHEN TotalAmount &lt; 0&#xA;                     THEN 'TOTAL_NEGATIVE;' ELSE '' END&#xA;            ),&#xA;            ''&#xA;        ) AS QualityIssue&#xA;    FROM S&#xA;)&#xA;INSERT INTO clean.Trip&#xA;(&#xA;    TaxiType,&#xA;    VendorID,&#xA;    PickupDateTime,&#xA;    DropoffDateTime,&#xA;    TripDurationSeconds,&#xA;    PULocationID,&#xA;    DOLocationID,&#xA;    PassengerCount,&#xA;    TripDistanceMiles,&#xA;    RateCodeID,&#xA;    PaymentTypeID,&#xA;    TripTypeID,&#xA;    StoreAndFwdFlag,&#xA;    FareAmount,&#xA;    ExtraAmount,&#xA;    MTATaxAmount,&#xA;    TipAmount,&#xA;    TollsAmount,&#xA;    ImprovementSurcharge,&#xA;    CongestionSurcharge,&#xA;    CBDCongestionFee,&#xA;    TotalAmount,&#xA;    IsTotalCalculated,&#xA;    IsCoreValid,&#xA;    QualityIssue&#xA;)&#xA;SELECT&#xA;    'GREEN',&#xA;    VendorID,&#xA;    PickupDT,&#xA;    DropoffDT,&#xA;    CASE&#xA;        WHEN PickupDT IS NOT NULL AND DropoffDT IS NOT NULL&#xA;        THEN DATEDIFF_BIG(SECOND, PickupDT, DropoffDT)&#xA;    END,&#xA;    PULocationID,&#xA;    DOLocationID,&#xA;    PassengerCount,&#xA;    TripDistance,&#xA;    RateCodeID,&#xA;    PaymentTypeID,&#xA;    TripTypeID,&#xA;    StoreAndFwdFlag,&#xA;    FareAmount,&#xA;    ExtraAmount,&#xA;    MTATax,&#xA;    TipAmount,&#xA;    TollsAmount,&#xA;    ImprovementSurcharge,&#xA;    CongestionSurcharge,&#xA;    CBDCongestionFee,&#xA;    TotalAmount,&#xA;    0,&#xA;    IsCoreValid,&#xA;    QualityIssue&#xA;FROM T;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\EST_Transform_TaxiZone"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{15A7B376-32F9-4E2B-B74D-D63BC08BED7C}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="EST_Transform_TaxiZone"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{428D3CB7-3BB4-4D96-8F32-4EE97109955B}"
+          SQLTask:SqlStatementSource="SET NOCOUNT ON;&#xA;&#xA;IF OBJECT_ID('clean.TaxiZone', 'U') IS NULL&#xA;    THROW 50001, 'Chay 00_setup_clean.sql truoc.', 1;&#xA;&#xA;DELETE FROM clean.TaxiZone;&#xA;&#xA;;WITH ZoneTyped AS&#xA;(&#xA;    SELECT&#xA;        TRY_CONVERT&#xA;        (&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(REPLACE(LocationID, '&quot;', ''))), '')&#xA;        ) AS LocationID,&#xA;&#xA;        NULLIF(&#xA;            LTRIM(RTRIM(REPLACE(Borough, '&quot;', ''))),&#xA;            ''&#xA;        ) AS Borough,&#xA;&#xA;        NULLIF(&#xA;            LTRIM(RTRIM(REPLACE(Zone, '&quot;', ''))),&#xA;            ''&#xA;        ) AS Zone,&#xA;&#xA;        NULLIF&#xA;        (&#xA;            LTRIM&#xA;            (&#xA;                RTRIM&#xA;                (&#xA;                    REPLACE(&#xA;                        REPLACE(service_zone, '&quot;', ''),&#xA;                        CHAR(13),&#xA;                        ''&#xA;                    )&#xA;                )&#xA;            ),&#xA;            ''&#xA;        ) AS ServiceZone&#xA;    FROM stg.TaxiZone&#xA;)&#xA;INSERT INTO clean.TaxiZone&#xA;(&#xA;    LocationID,&#xA;    Borough,&#xA;    Zone,&#xA;    ServiceZone&#xA;)&#xA;SELECT&#xA;    LocationID,&#xA;    MAX(Borough),&#xA;    MAX(Zone),&#xA;    MAX(ServiceZone)&#xA;FROM ZoneTyped&#xA;WHERE LocationID IS NOT NULL&#xA;GROUP BY LocationID;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\EST_Transform_Yellow"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{06F5E0E5-EA61-4226-AE63-6CEBF95F9C38}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="EST_Transform_Yellow"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{428D3CB7-3BB4-4D96-8F32-4EE97109955B}"
+          SQLTask:SqlStatementSource="SET NOCOUNT ON;&#xA;&#xA;IF OBJECT_ID('clean.Trip', 'U') IS NULL&#xA;    THROW 50001, 'Chay 00_setup_clean.sql truoc.', 1;&#xA;&#xA;DELETE FROM clean.Trip&#xA;WHERE TaxiType = 'YELLOW';&#xA;&#xA;;WITH S AS&#xA;(&#xA;    SELECT TOP (100000)&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(VendorID)), '')&#xA;        ) AS VendorID,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(tpep_pickup_datetime)), '')&#xA;        ) AS PickupDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            DATETIME2(0),&#xA;            NULLIF(LTRIM(RTRIM(tpep_dropoff_datetime)), '')&#xA;        ) AS DropoffDT,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(PULocationID)), '')&#xA;        ) AS PULocationID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(DOLocationID)), '')&#xA;        ) AS DOLocationID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(passenger_count)), '')&#xA;        ) AS PassengerCount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(12,3),&#xA;            NULLIF(LTRIM(RTRIM(trip_distance)), '')&#xA;        ) AS TripDistance,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(RatecodeID)), '')&#xA;        ) AS RateCodeID,&#xA;&#xA;        TRY_CONVERT(&#xA;            INT,&#xA;            NULLIF(LTRIM(RTRIM(payment_type)), '')&#xA;        ) AS PaymentTypeID,&#xA;&#xA;        UPPER(&#xA;            NULLIF(LTRIM(RTRIM(store_and_fwd_flag)), '')&#xA;        ) AS StoreAndFwdFlag,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(fare_amount)), '')&#xA;        ) AS FareAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(extra)), '')&#xA;        ) AS ExtraAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(mta_tax)), '')&#xA;        ) AS MTATax,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(tip_amount)), '')&#xA;        ) AS TipAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(tolls_amount)), '')&#xA;        ) AS TollsAmount,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(improvement_surcharge)), '')&#xA;        ) AS ImprovementSurcharge,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(congestion_surcharge)), '')&#xA;        ) AS CongestionSurcharge,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(Airport_fee)), '')&#xA;        ) AS AirportFee,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(cbd_congestion_fee)), '')&#xA;        ) AS CBDCongestionFee,&#xA;&#xA;        TRY_CONVERT(&#xA;            DECIMAL(18,2),&#xA;            NULLIF(LTRIM(RTRIM(total_amount)), '')&#xA;        ) AS TotalAmount&#xA;    FROM stg.YellowTrip&#xA;),&#xA;T AS&#xA;(&#xA;    SELECT&#xA;        *,&#xA;        CASE&#xA;            WHEN PickupDT IS NULL&#xA;              OR DropoffDT IS NULL&#xA;              OR DropoffDT &lt;= PickupDT&#xA;              OR DATEDIFF_BIG(SECOND, PickupDT, DropoffDT) &gt; 172800&#xA;              OR TripDistance &lt; 0&#xA;            THEN CONVERT(BIT, 0)&#xA;            ELSE CONVERT(BIT, 1)&#xA;        END AS IsCoreValid,&#xA;&#xA;        NULLIF(&#xA;            CONCAT(&#xA;                CASE WHEN PickupDT IS NULL&#xA;                     THEN 'PICKUP_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN DropoffDT IS NULL&#xA;                     THEN 'DROPOFF_INVALID;' ELSE '' END,&#xA;&#xA;                CASE WHEN PickupDT IS NOT NULL&#xA;                           AND DropoffDT IS NOT NULL&#xA;                           AND DropoffDT &lt;= PickupDT&#xA;                     THEN 'DURATION_NON_POSITIVE;' ELSE '' END,&#xA;&#xA;                CASE WHEN PickupDT IS NOT NULL&#xA;                           AND DropoffDT IS NOT NULL&#xA;                           AND DATEDIFF_BIG(&#xA;                               SECOND,&#xA;                               PickupDT,&#xA;                               DropoffDT&#xA;                           ) &gt; 172800&#xA;                     THEN 'DURATION_OVER_48H;' ELSE '' END,&#xA;&#xA;                CASE WHEN TripDistance &lt; 0&#xA;                     THEN 'DISTANCE_NEGATIVE;' ELSE '' END,&#xA;&#xA;                CASE WHEN TotalAmount &lt; 0&#xA;                     THEN 'TOTAL_NEGATIVE;' ELSE '' END&#xA;            ),&#xA;            ''&#xA;        ) AS QualityIssue&#xA;    FROM S&#xA;)&#xA;INSERT INTO clean.Trip&#xA;(&#xA;    TaxiType,&#xA;    VendorID,&#xA;    PickupDateTime,&#xA;    DropoffDateTime,&#xA;    TripDurationSeconds,&#xA;    PULocationID,&#xA;    DOLocationID,&#xA;    PassengerCount,&#xA;    TripDistanceMiles,&#xA;    RateCodeID,&#xA;    PaymentTypeID,&#xA;    StoreAndFwdFlag,&#xA;    FareAmount,&#xA;    ExtraAmount,&#xA;    MTATaxAmount,&#xA;    TipAmount,&#xA;    TollsAmount,&#xA;    ImprovementSurcharge,&#xA;    CongestionSurcharge,&#xA;    AirportFee,&#xA;    CBDCongestionFee,&#xA;    TotalAmount,&#xA;    IsTotalCalculated,&#xA;    IsCoreValid,&#xA;    QualityIssue&#xA;)&#xA;SELECT&#xA;    'YELLOW',&#xA;    VendorID,&#xA;    PickupDT,&#xA;    DropoffDT,&#xA;    CASE&#xA;        WHEN PickupDT IS NOT NULL AND DropoffDT IS NOT NULL&#xA;        THEN DATEDIFF_BIG(SECOND, PickupDT, DropoffDT)&#xA;    END,&#xA;    PULocationID,&#xA;    DOLocationID,&#xA;    PassengerCount,&#xA;    TripDistance,&#xA;    RateCodeID,&#xA;    PaymentTypeID,&#xA;    StoreAndFwdFlag,&#xA;    FareAmount,&#xA;    ExtraAmount,&#xA;    MTATax,&#xA;    TipAmount,&#xA;    TollsAmount,&#xA;    ImprovementSurcharge,&#xA;    CongestionSurcharge,&#xA;    AirportFee,&#xA;    CBDCongestionFee,&#xA;    TotalAmount,&#xA;    0,&#xA;    IsCoreValid,&#xA;    QualityIssue&#xA;FROM T;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\EST_Validate_Clean"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{E92A1517-FD2B-40B3-A5BA-914507BE36CF}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="EST_Validate_Clean"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{428D3CB7-3BB4-4D96-8F32-4EE97109955B}"
+          SQLTask:SqlStatementSource="SET NOCOUNT ON;&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM clean.TaxiZone&#xA;)&#xA;    THROW 50010, 'clean.TaxiZone khong co du lieu.', 1;&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM clean.Trip&#xA;    WHERE TaxiType = 'YELLOW'&#xA;)&#xA;    THROW 50011, 'Khong co du lieu YELLOW trong clean.Trip.', 1;&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM clean.Trip&#xA;    WHERE TaxiType = 'GREEN'&#xA;)&#xA;    THROW 50012, 'Khong co du lieu GREEN trong clean.Trip.', 1;&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM clean.Trip&#xA;    WHERE TaxiType = 'FHV'&#xA;)&#xA;    THROW 50013, 'Khong co du lieu FHV trong clean.Trip.', 1;&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM clean.Trip&#xA;    WHERE TaxiType = 'FHVHV'&#xA;)&#xA;    THROW 50014, 'Khong co du lieu FHVHV trong clean.Trip.', 1;&#xA;&#xA;IF EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM clean.Trip&#xA;    WHERE TaxiType NOT IN&#xA;    (&#xA;        'YELLOW',&#xA;        'GREEN',&#xA;        'FHV',&#xA;        'FHVHV'&#xA;    )&#xA;)&#xA;    THROW 50015, 'Phat hien TaxiType khong hop le.', 1;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{70A82B78-2DEB-4E8C-AD32-75AF37643E7E}"
+      DTS:From="Package\Data Flow Task"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\EST_Transform_TaxiZone" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{FBE62AF7-897E-4A81-89A7-CA848B7875A4}"
+      DTS:From="Package\EST_Transform_TaxiZone"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\EST_Transform_Yellow" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{36832355-F26B-419E-A66C-E263B6FB8781}"
+      DTS:From="Package\EST_Transform_Yellow"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\EST_Transform_Green" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{F29FDDD2-0AFF-49B7-A2FD-5AF9AB627079}"
+      DTS:From="Package\EST_Transform_Green"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\EST_Transform_FHV" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{B5DD5314-DD5C-4132-9A91-DB510D9C98A3}"
+      DTS:From="Package\EST_Transform_FHV"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\EST_Transform_FHVHV" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 5]"
+      DTS:CreationName=""
+      DTS:DTSID="{4C39E1A8-A9F1-4F6B-8196-B220DA37F99A}"
+      DTS:From="Package\EST_Transform_FHVHV"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 5"
+      DTS:To="Package\EST_Validate_Clean" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="216.666666666667,42.6666666666667"
+          Id="Package\Data Flow Task"
+          TopLeft="85.8124964097516,4.20000006198882" />
+        <NodeLayout
+          Size="200.666666666667,42.6666666666667"
+          Id="Package\EST_Transform_TaxiZone"
+          TopLeft="0.624999972060422,88.7249957692624" />
+        <NodeLayout
+          Size="191.333333333334,42.6666666666667"
+          Id="Package\EST_Transform_Yellow"
+          TopLeft="77.343746542465,177.124991554022" />
+        <NodeLayout
+          Size="194,42.6666666666667"
+          Id="Package\EST_Transform_Green"
+          TopLeft="109.999995082617,251.874987989665" />
+        <NodeLayout
+          Size="181.333333333334,42.6666666666667"
+          Id="Package\EST_Transform_FHV"
+          TopLeft="170.624992372468,321.099984688759" />
+        <NodeLayout
+          Size="190.666666666667,42.6666666666667"
+          Id="Package\EST_Transform_FHVHV"
+          TopLeft="179.999991953373,386.749981558324" />
+        <NodeLayout
+          Size="173.333333333334,42.6666666666667"
+          Id="Package\EST_Validate_Clean"
+          TopLeft="216.874990304932,460.70414473037" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="194.145829743085,46.8666667286555">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-93.1874964376912,41.858329040607"
+              Start="0,0"
+              End="-93.1874964376912,34.358329040607">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,16.9291645203035" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,16.9291645203035"
+                    Point2="0,20.9291645203035"
+                    Point3="-4,20.9291645203035" />
+                  <mssgle:LineSegment
+                    End="-89.1874964376912,20.9291645203035" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-89.1874964376912,20.9291645203035"
+                    Point2="-93.1874964376912,20.9291645203035"
+                    Point3="-93.1874964376912,24.9291645203035" />
+                  <mssgle:LineSegment
+                    End="-93.1874964376912,34.358329040607" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="100.958333305394,131.391662435929">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="72.0520799037379,45.7333291180932"
+              Start="0,0"
+              End="72.0520799037379,38.2333291180932">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,18.8666645590466" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,18.8666645590466"
+                    Point2="0,22.8666645590466"
+                    Point3="4,22.8666645590466" />
+                  <mssgle:LineSegment
+                    End="68.0520799037379,22.8666645590466" />
+                  <mssgle:CubicBezierSegment
+                    Point1="68.0520799037379,22.8666645590466"
+                    Point2="72.0520799037379,22.8666645590466"
+                    Point3="72.0520799037379,26.8666645590466" />
+                  <mssgle:LineSegment
+                    End="72.0520799037379,38.2333291180932" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="173.010413209132,219.791658220689">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="33.9895818734851,32.0833297689757"
+              Start="0,0"
+              End="33.9895818734851,24.5833297689757">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,12.0416648844878" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,12.0416648844878"
+                    Point2="0,16.0416648844878"
+                    Point3="4,16.0416648844878" />
+                  <mssgle:LineSegment
+                    End="29.9895818734851,16.0416648844878" />
+                  <mssgle:CubicBezierSegment
+                    Point1="29.9895818734851,16.0416648844878"
+                    Point2="33.9895818734851,16.0416648844878"
+                    Point3="33.9895818734851,20.0416648844878" />
+                  <mssgle:LineSegment
+                    End="33.9895818734851,24.5833297689757" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="206.999995082617,294.541654656331">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="54.2916639565183,26.558330032428"
+              Start="0,0"
+              End="54.2916639565183,19.058330032428">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,9.27916501621399" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,9.27916501621399"
+                    Point2="0,13.279165016214"
+                    Point3="4,13.279165016214" />
+                  <mssgle:LineSegment
+                    End="50.2916639565183,13.279165016214" />
+                  <mssgle:CubicBezierSegment
+                    Point1="50.2916639565183,13.279165016214"
+                    Point2="54.2916639565183,13.279165016214"
+                    Point3="54.2916639565183,17.279165016214" />
+                  <mssgle:LineSegment
+                    End="54.2916639565183,19.058330032428" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="261.291659039135,363.766651355426">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="14.041666247571,22.9833302028977"
+              Start="0,0"
+              End="14.041666247571,15.4833302028977">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,7.49166510144886" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,7.49166510144886"
+                    Point2="0,11.4916651014489"
+                    Point3="4,11.4916651014489" />
+                  <mssgle:LineSegment
+                    End="10.041666247571,11.4916651014489" />
+                  <mssgle:CubicBezierSegment
+                    Point1="10.041666247571,11.4916651014489"
+                    Point2="14.041666247571,11.4916651014489"
+                    Point3="14.041666247571,15.4916651014489" />
+                  <mssgle:LineSegment
+                    End="14.041666247571,15.4833302028977" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 5]"
+          TopLeft="275.333325286706,429.41664822499">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="28.208331684893,31.2874965053795"
+              Start="0,0"
+              End="28.208331684893,23.7874965053795">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,11.6437482526898" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,11.6437482526898"
+                    Point2="0,15.6437482526898"
+                    Point3="4,15.6437482526898" />
+                  <mssgle:LineSegment
+                    End="24.208331684893,15.6437482526898" />
+                  <mssgle:CubicBezierSegment
+                    Point1="24.208331684893,15.6437482526898"
+                    Point2="28.208331684893,15.6437482526898"
+                    Point3="28.208331684893,19.6437482526898" />
+                  <mssgle:LineSegment
+                    End="28.208331684893,23.7874965053795" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="THUONGNGUYEN_MSSQLSV.NYCTaxi_DWH"
+  DTS:DTSID="{4A829E7F-DE39-4A39-83D3-52CE94E192E2}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=THUONGNGUYEN\MSSQLSV;Initial Catalog=NYCTaxi_DWH;Provider=SQLOLEDB.1;Integrated Security=SSPI;Application Name=SSIS-NYCTaxi_ETL-{4A829E7F-DE39-4A39-83D3-52CE94E192E2}THUONGNGUYEN\MSSQLSV.NYCTaxi_DWH;Auto Translate=False;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>
