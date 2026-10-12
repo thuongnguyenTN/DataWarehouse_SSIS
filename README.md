@@ -16,6 +16,14 @@ Tai va convert ca bon bo du lieu cua thang 01/2026:
 py NYCTaxi_DW\scripts\extract_nyc_taxi.py --year 2026 --month 1 --data-root "D:\Kho_Du_lieu\NYCTaxi"
 ```
 
+Mo cua so chon khoang thang khi chay thu cong/tu Visual Studio:
+
+```powershell
+py NYCTaxi_DW\scripts\download_nyc_taxi_parquet.py --interactive --output "D:\Kho_Du_lieu\NYCTaxi\raw"
+```
+
+Che do `--interactive` chi nen dung khi chay package truc tiep tren may Windows co giao dien. Khi chay bang SQL Server Agent hoac SSIS Catalog, dung Package Parameter `--start/--end` thay vi hop thoai.
+
 Chi xu ly Yellow va Green:
 
 ```powershell
