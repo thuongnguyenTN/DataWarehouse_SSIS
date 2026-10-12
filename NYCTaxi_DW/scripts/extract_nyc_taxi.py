@@ -6,11 +6,15 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
+import time
 from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 
 DATASETS = ("yellow", "green", "fhv", "fhvhv")
 DEFAULT_DATA_ROOT = Path(r"D:\Kho_Du_lieu\NYCTaxi")
+ZONE_LOOKUP_URL = "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv"
 
 
 def parse_args() -> argparse.Namespace:
@@ -41,6 +45,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Chuyen lai CSV du da ton tai; Parquet hop le van duoc bo qua",
     )
+    parser.add_argument(
+        "--skip-zone-lookup",
+        action="store_true",
+        help="Khong tai file taxi_zone_lookup.csv",
+    )
     args = parser.parse_args()
     if args.year < 2009:
         parser.error("NYC TLC trip data bat dau tu nam 2009")
@@ -59,6 +68,47 @@ def run_step(command: list[str], label: str) -> int:
     if completed.returncode:
         print(f"[THAT BAI] {label} tra ve ma {completed.returncode}", file=sys.stderr)
     return completed.returncode
+
+
+def valid_zone_lookup(path: Path) -> bool:
+    try:
+        if path.stat().st_size == 0:
+            return False
+        with path.open("r", encoding="utf-8-sig") as file:
+            header = file.readline().strip().lower()
+        return "locationid" in header and "borough" in header and "zone" in header
+    except OSError:
+        return False
+
+
+def download_zone_lookup(destination: Path, retries: int) -> int:
+    if valid_zone_lookup(destination):
+        print(f"[BO QUA] Da co lookup hop le: {destination}")
+        return 0
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = destination.with_suffix(destination.suffix + ".part")
+    for attempt in range(1, retries + 1):
+        try:
+            temporary.unlink(missing_ok=True)
+            request = Request(
+                ZONE_LOOKUP_URL,
+                headers={"User-Agent": "Mozilla/5.0 NYC-Taxi-DWH-Downloader/1.0"},
+            )
+            with urlopen(request, timeout=90) as response, temporary.open("wb") as out:
+                while chunk := response.read(1024 * 1024):
+                    out.write(chunk)
+            if not valid_zone_lookup(temporary):
+                raise ValueError("Taxi Zone lookup khong co header hop le")
+            temporary.replace(destination)
+            print(f"[XONG] {destination}")
+            return 0
+        except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
+            temporary.unlink(missing_ok=True)
+            print(f"[LOI {attempt}/{retries}] Taxi Zone lookup: {exc}", file=sys.stderr)
+            if attempt < retries:
+                time.sleep(attempt * 3)
+    return 1
 
 
 def main() -> int:
@@ -101,6 +151,12 @@ def main() -> int:
         convert_command.append("--overwrite")
     if run_step(convert_command, "2. CONVERT PARQUET TO CSV"):
         return 1
+
+    if not args.skip_zone_lookup:
+        print("\n===== 3. TAXI ZONE LOOKUP =====", flush=True)
+        zone_destination = data_root / "csv" / "lookup" / "taxi_zone_lookup.csv"
+        if download_zone_lookup(zone_destination, args.retries):
+            return 1
 
     print(
         f"\n[HOAN TAT] Extract {args.year:04d}-{args.month:02d}. "
