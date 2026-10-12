@@ -28,6 +28,7 @@ Quy tac chay lai an toan:
 - CSV da ton tai va khong rong se duoc bo qua.
 - File dang tai/chuyen doi mang duoi `.part`; chi doi thanh ten chinh thuc khi hoan tat.
 - Neu lan chay truoc bi dung giua chung, lan sau se xoa `.part` cu va xu ly lai file do.
+- Taxi Zone lookup khong theo thang; script tai mot lan va bo qua khi file hop le da co.
 
 Cau truc ket qua:
 
@@ -38,6 +39,7 @@ D:\Kho_Du_lieu\NYCTaxi
 |-- raw\fhv\year=2026\month=01\fhv_tripdata_2026-01.parquet
 |-- raw\fhvhv\year=2026\month=01\fhvhv_tripdata_2026-01.parquet
 `-- csv\... (giu cung cau truc, duoi .csv)
+    `-- lookup\taxi_zone_lookup.csv
 ```
 
 ## Goi tu SSIS
