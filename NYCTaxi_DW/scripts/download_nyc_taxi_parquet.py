@@ -162,7 +162,7 @@ def download_file(url: str, destination: Path, retries: int) -> str:
             return "downloaded"
 
         except HTTPError as exc:
-            if exc.code == 404:
+            if exc.code in (403, 404):
                 print(f"[CHUA CO] NYC TLC chua cong bo du lieu thang nay: {url}")
                 temporary.unlink(missing_ok=True)
                 return "not_found"
