@@ -209,6 +209,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Thang can tai (1-12). Phai dung cung --year.",
     )
     parser.add_argument(
+        "--interactive",
+        action="store_true",
+        help="Mo cua so chon thang bat dau va thang ket thuc.",
+    )
+    parser.add_argument(
         "--datasets",
         nargs="+",
         choices=tuple(DATASETS),
@@ -234,11 +239,110 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def select_range_gui() -> tuple[YearMonth, YearMonth] | None:
+    """Show a small Windows dialog and return the selected month range."""
+    try:
+        import tkinter as tk
+        from tkinter import messagebox, ttk
+    except ImportError as exc:
+        raise RuntimeError("Python hien tai khong co thu vien tkinter.") from exc
+
+    now = time.localtime()
+    selected: dict[str, YearMonth] = {}
+
+    try:
+        root = tk.Tk()
+    except Exception as exc:
+        raise RuntimeError(
+            "Khong the mo cua so chon thoi gian. Hay dung --start va --end."
+        ) from exc
+
+    root.title("NYC Taxi - Chon khoang du lieu")
+    root.resizable(False, False)
+    root.attributes("-topmost", True)
+
+    frame = ttk.Frame(root, padding=16)
+    frame.grid(row=0, column=0, sticky="nsew")
+
+    years = [str(year) for year in range(2009, now.tm_year + 1)]
+    months = [f"{month:02d}" for month in range(1, 13)]
+    start_year = tk.StringVar(value=str(now.tm_year))
+    start_month = tk.StringVar(value="01")
+    end_year = tk.StringVar(value=str(now.tm_year))
+    end_month = tk.StringVar(value=f"{now.tm_mon:02d}")
+
+    ttk.Label(frame, text="Tu thang:").grid(row=0, column=0, padx=5, pady=6)
+    ttk.Combobox(
+        frame, textvariable=start_month, values=months, state="readonly", width=5
+    ).grid(row=0, column=1, padx=5, pady=6)
+    ttk.Combobox(
+        frame, textvariable=start_year, values=years, state="readonly", width=8
+    ).grid(row=0, column=2, padx=5, pady=6)
+
+    ttk.Label(frame, text="Den thang:").grid(row=1, column=0, padx=5, pady=6)
+    ttk.Combobox(
+        frame, textvariable=end_month, values=months, state="readonly", width=5
+    ).grid(row=1, column=1, padx=5, pady=6)
+    ttk.Combobox(
+        frame, textvariable=end_year, values=years, state="readonly", width=8
+    ).grid(row=1, column=2, padx=5, pady=6)
+
+    def confirm() -> None:
+        start = YearMonth(int(start_year.get()), int(start_month.get()))
+        end = YearMonth(int(end_year.get()), int(end_month.get()))
+        if start > end:
+            messagebox.showerror(
+                "Khoang thoi gian khong hop le",
+                "Thang bat dau phai nho hon hoac bang thang ket thuc.",
+                parent=root,
+            )
+            return
+        selected["start"] = start
+        selected["end"] = end
+        root.destroy()
+
+    def cancel() -> None:
+        root.destroy()
+
+    button_frame = ttk.Frame(frame)
+    button_frame.grid(row=2, column=0, columnspan=3, pady=(12, 0))
+    ttk.Button(button_frame, text="Tai du lieu", command=confirm).grid(
+        row=0, column=0, padx=5
+    )
+    ttk.Button(button_frame, text="Huy", command=cancel).grid(
+        row=0, column=1, padx=5
+    )
+
+    root.protocol("WM_DELETE_WINDOW", cancel)
+    root.update_idletasks()
+    root.geometry(
+        f"+{(root.winfo_screenwidth() - root.winfo_width()) // 2}"
+        f"+{(root.winfo_screenheight() - root.winfo_height()) // 2}"
+    )
+    root.mainloop()
+
+    if "start" not in selected:
+        return None
+    return selected["start"], selected["end"]
+
+
 def resolve_range(
     args: argparse.Namespace, parser: argparse.ArgumentParser
 ) -> tuple[YearMonth, YearMonth]:
     exact_month_selected = args.year is not None or args.month is not None
     range_selected = args.start is not None or args.end is not None
+
+    if args.interactive:
+        if exact_month_selected or range_selected:
+            parser.error("Khong dung --interactive chung voi cac tham so thoi gian khac")
+        try:
+            selected_range = select_range_gui()
+        except RuntimeError as exc:
+            parser.error(str(exc))
+        if selected_range is None:
+            print("Da huy chon khoang du lieu.")
+            raise SystemExit(130)
+        return selected_range
 
     if exact_month_selected:
         if args.year is None or args.month is None:
