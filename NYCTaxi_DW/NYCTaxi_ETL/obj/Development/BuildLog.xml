@@ -2,28 +2,33 @@
 <BuildLog xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ProjectInfo>
     <Name>NYCTaxi_ETL</Name>
-    <LastWriteTime>2026-10-11T17:24:11.459905Z</LastWriteTime>
+    <LastWriteTime>2026-10-19T11:45:22.8629557Z</LastWriteTime>
     <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
   </ProjectInfo>
   <LastBuildInfos>
     <ProjectBuildItemInfo>
       <Name>PKG_02_Transform_Clean.dtsx</Name>
-      <LastWriteTime>2026-10-11T15:59:48.9208776Z</LastWriteTime>
+      <LastWriteTime>2026-10-19T10:34:57.3956443Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
     <ProjectBuildItemInfo>
       <Name>PKG_03_Load_DWH.dtsx</Name>
-      <LastWriteTime>2026-10-11T17:24:11.459905Z</LastWriteTime>
+      <LastWriteTime>2026-10-19T11:56:36.7583432Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
     <ProjectBuildItemInfo>
       <Name>PKG_01_Extract_Stage.dtsx</Name>
-      <LastWriteTime>2026-10-11T17:11:14.321867Z</LastWriteTime>
+      <LastWriteTime>2026-10-14T11:52:23.5260687Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
     <ProjectBuildItemInfo>
       <Name>PKG_00_Master.dtsx</Name>
       <LastWriteTime>2026-10-11T17:24:11.4484856Z</LastWriteTime>
+      <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
+    </ProjectBuildItemInfo>
+    <ProjectBuildItemInfo>
+      <Name>PKG_04_Load_Aggregates.dtsx</Name>
+      <LastWriteTime>2026-10-19T11:45:15.6310051Z</LastWriteTime>
       <LastKnownProtectionLevel>EncryptSensitiveWithUserKey</LastKnownProtectionLevel>
     </ProjectBuildItemInfo>
   </LastBuildInfos>
