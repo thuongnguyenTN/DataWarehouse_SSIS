@@ -26,7 +26,7 @@
           <SSIS:Property SSIS:Name="CreatorComputerName">THUONGNGUYEN</SSIS:Property>
           <SSIS:Property SSIS:Name="Description">
           </SSIS:Property>
-          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAw9Yf6+E2Zk6hQkVWoTS84wAAAAACAAAAAAAQZgAAAAEAACAAAACpfRUd2bHXPDxPPL3agICdwgjI0P6uRQwKemFUVQxbMQAAAAAOgAAAAAIAACAAAAC7rCzm6CwiAcSB3DP+V28YEyIeNqoVmMkxP/VbFg5UAZAAAACmFxp+kAAjtLebEjSUkAjf/CVsCjaGZWBXIIJWx+66zZN0DeP+LgfNIt3AaFKoMhtPyLtyqsQ5T7BfeNaj6GecUqb+lsCn0EaYJTN396SgSbisPc3K6QWQZypuFuOvqt7TxmJwwMPhaqwVj1OgmBbvJ4V/rHGYWBolGsGNdspwOm5+pZM20Ee1xA5UheoYe5dAAAAAgmfE4RSvf4xCF1cRYghUp2azwHVqSKvDDjmp6KxnAAQHQh8gbp3ggNSD4ipvqNq6Iv8aGGfWvGaRnArxmXQfWw==</SSIS:Property>
+          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAw9Yf6+E2Zk6hQkVWoTS84wAAAAACAAAAAAAQZgAAAAEAACAAAABV79/i2B/kDzvawohx1HC412/3fW2KCcHC7wlfxLPaYgAAAAAOgAAAAAIAACAAAAAursLPANxSqKXcY3dPW90pn3bgxGF0rnJEmZg2HfoKx5AAAABFT7NhVyuy7LTRreXLfy7S8dJNARZcn21kcBm0t4PGEN3uD0K8wargAAPVADy9DCx+K0cuB9zfeYqwPqoIG+0ixe4bb4zK7bIJ8cw7RDhJ1iF4hZoPECk9kM9AAfQj5Jt9kh+ytZs6RwKBy0h9wi/d91OdovmTpk40ML6I8jpr0XuCktQVHZVYsGXQpBGgKZhAAAAAaVmvMlYf1hznfj9V1y/xJwtS861NJyOC8XCLGqZcNcYPqRTP+XEcdS0Ior2k0zVQgx9hbpT14F1fH5yRRP044g==</SSIS:Property>
           <SSIS:Property SSIS:Name="FormatVersion">1</SSIS:Property>
         </SSIS:Properties>
         <SSIS:Packages>
@@ -346,10 +346,10 @@
                 <SSIS:Property SSIS:Name="Name">PKG_02_Transform_Stage</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionBuild">4</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">6</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{9192D609-52C1-4913-9DA8-D8F405C2BCC0}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{D50F400D-D465-4A60-8EB4-C7F0E8F2FE3A}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">Incremental Transform by source file; direct SQL; atomic clean and file log.</SSIS:Property>
                 <SSIS:Property SSIS:Name="ProtectionLevel">1</SSIS:Property>
@@ -362,10 +362,10 @@
                 <SSIS:Property SSIS:Name="Name">PKG_03_Load_DWH</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionBuild">2</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">3</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{73F4A793-D06C-4AF1-A701-A6DD726735A1}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{CC9AA213-5D12-4110-A65A-C2E5C6452833}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">
                 </SSIS:Property>
@@ -379,10 +379,10 @@
                 <SSIS:Property SSIS:Name="Name">PKG_01_Extract_Stage</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionBuild">61</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">62</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{735C3EEF-BEFB-4BFB-9C79-8FC4E75B224D}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{82C19671-877A-4FE5-A0A4-759DE1871ADF}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">NYC TLC incremental extract: skip completed download, conversion and verified file loads; preserve staging.</SSIS:Property>
                 <SSIS:Property SSIS:Name="ProtectionLevel">1</SSIS:Property>
@@ -1375,19 +1375,147 @@
             <SSIS:PackageMetaData SSIS:Name="PKG_00_Master.dtsx">
               <SSIS:Properties>
                 <SSIS:Property SSIS:Name="ID">{F84AF46A-6714-4447-8515-E6F1A1680B64}</SSIS:Property>
-                <SSIS:Property SSIS:Name="Name">Package1</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">PKG_00_Master</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionBuild">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">15</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{30D8BAF9-610E-4182-AD6C-1C3835E41F88}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{B5A1ABEC-3149-4495-88F5-D889E9325D56}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">
                 </SSIS:Property>
                 <SSIS:Property SSIS:Name="ProtectionLevel">1</SSIS:Property>
               </SSIS:Properties>
-              <SSIS:Parameters />
+              <SSIS:Parameters>
+                <SSIS:Parameter SSIS:Name="pControllerPath">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{400FFA08-BC3E-4320-A060-1311196F27F5}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">E:\NYCTaxi\NYCTaxi_SSAS\etl\Invoke-SsisStage.ps1</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="pEndMonth">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{EB34BBA4-7703-47CA-83E4-2F0A430790C6}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">2021-03</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="pMaxRetries">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{CE210B04-3D5A-4BD1-8EDC-329100BF82FD}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">1</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">9</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="pMaxRows">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{4DD5D5B6-F33E-4501-A9E7-A8B72D657EED}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">1000</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">9</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="pResumeRunId">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{5674C435-EE9A-49FC-92AA-348B2DF299A0}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="pRunnerPath">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{F3A6670D-E018-49BE-B19D-396345862B5F}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">E:\NYCTaxi\NYCTaxi_SSAS\etl\Invoke-NYCTaxiPipeline.ps1</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="pShowMonitor">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{D837AD7A-FCAF-4EEB-BE4A-65F57092D2DC}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">1</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">9</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="pStartMonth">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{768CF990-65C1-437A-9A9C-CE9A03A82EF1}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">2021-03</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="pStartStage">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">{9ABEE7DF-B29B-4690-AE00-7664CE463895}</SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">Extract</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+              </SSIS:Parameters>
             </SSIS:PackageMetaData>
             <SSIS:PackageMetaData SSIS:Name="PKG_04_Load_Aggregates.dtsx">
               <SSIS:Properties>
@@ -1395,10 +1523,10 @@
                 <SSIS:Property SSIS:Name="Name">PKG_04_Load_Aggregates</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionBuild">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">3</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{6004760B-A69E-4537-83C8-52AA43CD3AFA}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{5CEA2C1C-BC02-4E25-949F-0D33694B8DBA}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">
                 </SSIS:Property>

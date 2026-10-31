@@ -14,8 +14,8 @@
   DTS:MaxConcurrentExecutables="1"
   DTS:ObjectName="PKG_01_Extract_Stage"
   DTS:PackageType="5"
-  DTS:VersionBuild="61"
-  DTS:VersionGUID="{735C3EEF-BEFB-4BFB-9C79-8FC4E75B224D}">
+  DTS:VersionBuild="62"
+  DTS:VersionGUID="{82C19671-877A-4FE5-A0A4-759DE1871ADF}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -1118,7 +1118,7 @@
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
           SQLTask:Connection="{428D3CB7-3BB4-4D96-8F32-4EE97109955B}"
-          SQLTask:SqlStatementSource="SET NOCOUNT ON;&#xA;DECLARE @StartMonth DATE = CONVERT(DATE, ? + '-01', 23),&#xA;        @EndMonth DATE = CONVERT(DATE, ? + '-01', 23), @RowLimit INT = ?;&#xA;IF @StartMonth &gt; @EndMonth OR @RowLimit &lt; 0 THROW 51010, 'Invalid extraction range.', 1;&#xA;DECLARE @Month DATE = @StartMonth;&#xA;DECLARE @Expected TABLE (DatasetCode VARCHAR(20), SourceKey NVARCHAR(260), RowLimit INT);&#xA;WHILE @Month &lt;= @EndMonth&#xA;BEGIN&#xA;    INSERT @Expected (DatasetCode, SourceKey, RowLimit)&#xA;    SELECT DatasetCode, DatasetCode + '_tripdata_' + CONVERT(CHAR(7), @Month, 126) + '.csv', @RowLimit&#xA;    FROM (VALUES ('yellow'), ('green'), ('fhv'), ('fhvhv')) AS D(DatasetCode);&#xA;    IF @Month = @EndMonth BREAK;&#xA;    SET @Month = DATEADD(MONTH, 1, @Month);&#xA;END;&#xA;INSERT @Expected VALUES ('lookup', 'taxi_zone_lookup.csv', 0);&#xA;IF EXISTS (&#xA;    SELECT 1 FROM @Expected AS E LEFT JOIN etl.ExtractFileLog AS L&#xA;        ON L.DatasetCode = E.DatasetCode AND L.SourceKey = E.SourceKey&#xA;    WHERE L.SourceKey IS NULL OR L.LoadStatus &lt;&gt; 'SUCCEEDED'&#xA;        OR L.RowLimit &lt;&gt; E.RowLimit OR L.RowsLoaded IS NULL OR L.RowsLoaded &lt;&gt; L.ExpectedRows)&#xA;    THROW 51007, 'File load coverage is incomplete. Check etl.ExtractFileLog.', 1;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:SqlStatementSource="SET NOCOUNT ON;&#xA;DECLARE @StartMonth DATE = CONVERT(DATE, ? + '-01', 23),&#xA;        @EndMonth DATE = CONVERT(DATE, ? + '-01', 23), @RowLimit INT = ?;&#xA;IF @StartMonth &gt; @EndMonth OR @RowLimit &lt; 0 THROW 51010, 'Invalid extraction range.', 1;&#xA;DECLARE @Month DATE = @StartMonth;&#xA;DECLARE @Expected TABLE (DatasetCode VARCHAR(20), SourceKey NVARCHAR(260), RowLimit INT);&#xA;WHILE @Month &lt;= @EndMonth&#xA;BEGIN&#xA;    INSERT @Expected (DatasetCode, SourceKey, RowLimit)&#xA;    SELECT DatasetCode, DatasetCode + '_tripdata_' + CONVERT(CHAR(7), @Month, 126) + '.csv', @RowLimit&#xA;    FROM (VALUES ('yellow',CONVERT(date,'20090101')), ('green',CONVERT(date,'20130801')),&#xA;        ('fhv',CONVERT(date,'20150101')), ('fhvhv',CONVERT(date,'20190201'))) AS D(DatasetCode,FirstMonth)&#xA;    WHERE @Month &gt;= D.FirstMonth;&#xA;    IF @Month = @EndMonth BREAK;&#xA;    SET @Month = DATEADD(MONTH, 1, @Month);&#xA;END;&#xA;INSERT @Expected VALUES ('lookup', 'taxi_zone_lookup.csv', 0);&#xA;IF EXISTS (&#xA;    SELECT 1 FROM @Expected AS E LEFT JOIN etl.ExtractFileLog AS L&#xA;        ON L.DatasetCode = E.DatasetCode AND L.SourceKey = E.SourceKey&#xA;    WHERE L.SourceKey IS NULL OR L.LoadStatus &lt;&gt; 'SUCCEEDED'&#xA;        OR L.RowLimit &lt;&gt; E.RowLimit OR L.RowsLoaded IS NULL OR L.RowsLoaded &lt;&gt; L.ExpectedRows)&#xA;    THROW 51007, 'File load coverage is incomplete. Check etl.ExtractFileLog.', 1;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::vStartMonth"
@@ -6806,167 +6806,75 @@
       DTS:ObjectName="Constraint_7"
       DTS:To="Package\EST_09_Validate_Staging" />
   </DTS:PrecedenceConstraints>
-  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
-<Objects
-  Version="8">
-  <Package
-    design-time-name="Package">
-    <LayoutInfo>
-      <GraphLayout xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph"
-        Capacity="32">
-        <NodeLayout
-          Id="Package\EPT_01_Download_Parquet"
-          Size="320,50"
-          TopLeft="20,20" />
-        <NodeLayout
-          Id="Package\EPT_02_Convert_To_CSV"
-          Size="320,50"
-          TopLeft="20,100" />
-        <NodeLayout
-          Id="Package\EST_03_Prepare_Staging"
-          Size="320,50"
-          TopLeft="20,180" />
-        <ContainerLayout
-          Id="Package\FLC_04_Load_Yellow_Files"
-          HeaderHeight="43"
-          IsExpanded="True"
-          PanelSize="650,357"
-          Size="650,400"
-          TopLeft="390,20" />
-        <ContainerLayout
-          Id="Package\FLC_05_Load_Green_Files"
-          HeaderHeight="43"
-          IsExpanded="True"
-          PanelSize="650,357"
-          Size="650,400"
-          TopLeft="1100,20" />
-        <ContainerLayout
-          Id="Package\FLC_06_Load_FHV_Files"
-          HeaderHeight="43"
-          IsExpanded="True"
-          PanelSize="650,357"
-          Size="650,400"
-          TopLeft="390,470" />
-        <ContainerLayout
-          Id="Package\FLC_07_Load_FHVHV_Files"
-          HeaderHeight="43"
-          IsExpanded="True"
-          PanelSize="650,357"
-          Size="650,400"
-          TopLeft="1100,470" />
-        <ContainerLayout
-          Id="Package\FLC_08_Load_TaxiZone_Files"
-          HeaderHeight="43"
-          IsExpanded="True"
-          PanelSize="650,357"
-          Size="650,400"
-          TopLeft="390,920" />
-        <NodeLayout
-          Id="Package\EST_09_Validate_Staging"
-          Size="320,50"
-          TopLeft="20,330" />
-        <NodeLayout
-          Id="Package\FLC_04_Load_Yellow_Files\EPT_Inspect_Yellow_CSV"
-          Size="290,45"
-          TopLeft="15,20" />
-        <NodeLayout
-          Id="Package\FLC_04_Load_Yellow_Files\EST_Begin_Yellow_File"
-          Size="290,45"
-          TopLeft="15,95" />
-        <NodeLayout
-          Id="Package\FLC_04_Load_Yellow_Files\DFT_04_Load_Yellow"
-          Size="290,45"
-          TopLeft="15,170" />
-        <NodeLayout
-          Id="Package\FLC_04_Load_Yellow_Files\EST_Commit_Yellow_File"
-          Size="290,45"
-          TopLeft="15,245" />
-        <NodeLayout
-          Id="Package\FLC_04_Load_Yellow_Files\EST_Mark_Yellow_Failed"
-          Size="290,45"
-          TopLeft="330,205" />
-        <NodeLayout
-          Id="Package\FLC_05_Load_Green_Files\EPT_Inspect_Green_CSV"
-          Size="290,45"
-          TopLeft="15,20" />
-        <NodeLayout
-          Id="Package\FLC_05_Load_Green_Files\EST_Begin_Green_File"
-          Size="290,45"
-          TopLeft="15,95" />
-        <NodeLayout
-          Id="Package\FLC_05_Load_Green_Files\DFT_05_Load_Green"
-          Size="290,45"
-          TopLeft="15,170" />
-        <NodeLayout
-          Id="Package\FLC_05_Load_Green_Files\EST_Commit_Green_File"
-          Size="290,45"
-          TopLeft="15,245" />
-        <NodeLayout
-          Id="Package\FLC_05_Load_Green_Files\EST_Mark_Green_Failed"
-          Size="290,45"
-          TopLeft="330,205" />
-        <NodeLayout
-          Id="Package\FLC_06_Load_FHV_Files\EPT_Inspect_FHV_CSV"
-          Size="290,45"
-          TopLeft="15,20" />
-        <NodeLayout
-          Id="Package\FLC_06_Load_FHV_Files\EST_Begin_FHV_File"
-          Size="290,45"
-          TopLeft="15,95" />
-        <NodeLayout
-          Id="Package\FLC_06_Load_FHV_Files\DFT_06_Load_FHV"
-          Size="290,45"
-          TopLeft="15,170" />
-        <NodeLayout
-          Id="Package\FLC_06_Load_FHV_Files\EST_Commit_FHV_File"
-          Size="290,45"
-          TopLeft="15,245" />
-        <NodeLayout
-          Id="Package\FLC_06_Load_FHV_Files\EST_Mark_FHV_Failed"
-          Size="290,45"
-          TopLeft="330,205" />
-        <NodeLayout
-          Id="Package\FLC_07_Load_FHVHV_Files\EPT_Inspect_FHVHV_CSV"
-          Size="290,45"
-          TopLeft="15,20" />
-        <NodeLayout
-          Id="Package\FLC_07_Load_FHVHV_Files\EST_Begin_FHVHV_File"
-          Size="290,45"
-          TopLeft="15,95" />
-        <NodeLayout
-          Id="Package\FLC_07_Load_FHVHV_Files\DFT_07_Load_FHVHV"
-          Size="290,45"
-          TopLeft="15,170" />
-        <NodeLayout
-          Id="Package\FLC_07_Load_FHVHV_Files\EST_Commit_FHVHV_File"
-          Size="290,45"
-          TopLeft="15,245" />
-        <NodeLayout
-          Id="Package\FLC_07_Load_FHVHV_Files\EST_Mark_FHVHV_Failed"
-          Size="290,45"
-          TopLeft="330,205" />
-        <NodeLayout
-          Id="Package\FLC_08_Load_TaxiZone_Files\EPT_Inspect_TaxiZone_CSV"
-          Size="290,45"
-          TopLeft="15,20" />
-        <NodeLayout
-          Id="Package\FLC_08_Load_TaxiZone_Files\EST_Begin_TaxiZone_File"
-          Size="290,45"
-          TopLeft="15,95" />
-        <NodeLayout
-          Id="Package\FLC_08_Load_TaxiZone_Files\DFT_08_Load_TaxiZone"
-          Size="290,45"
-          TopLeft="15,170" />
-        <NodeLayout
-          Id="Package\FLC_08_Load_TaxiZone_Files\EST_Commit_TaxiZone_File"
-          Size="290,45"
-          TopLeft="15,245" />
-        <NodeLayout
-          Id="Package\FLC_08_Load_TaxiZone_Files\EST_Mark_TaxiZone_Failed"
-          Size="290,45"
-          TopLeft="330,205" />
-      </GraphLayout>
-    </LayoutInfo>
-  </Package>
-</Objects>]]></DTS:DesignTimeProperties>
+  <DTS:EventHandlers>
+    <DTS:EventHandler
+      DTS:refId="Package.EventHandlers[OnError]"
+      DTS:CreationName="OnError"
+      DTS:DTSID="{763366FD-0980-43B4-96F4-BAC2241AC57C}"
+      DTS:EventID="9437328"
+      DTS:EventName="OnError"
+      DTS:LocaleID="1033">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:Description="The propagate property of the event"
+          DTS:DTSID="{3F41F8A2-E9B6-463E-AA81-8FECC4F35528}"
+          DTS:IncludeInDebugDump="6789"
+          DTS:Namespace="System"
+          DTS:ObjectName="Propagate">
+          <DTS:VariableValue
+            DTS:DataType="11">-1</DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package.EventHandlers[OnError]\EST_LogOriginalError"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:DelayValidation="True"
+          DTS:DisableEventHandlers="True"
+          DTS:DTSID="{524F510C-F04A-4B49-AC19-A0972DCB9446}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EST_LogOriginalError">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{4A829E7F-DE39-4A39-83D3-52CE94E192E2}"
+              SQLTask:SqlStatementSource="INSERT etl.PackageError(ExecutionId,PackageName,SourceName,ErrorCode,ErrorDescription) VALUES(?,?,?,?,?);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="System::ExecutionInstanceGUID"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="64" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="System::PackageName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="260" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="2"
+                SQLTask:DtsVariableName="System::SourceName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="260" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="3"
+                SQLTask:DtsVariableName="System::ErrorCode"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="4"
+                SQLTask:DtsVariableName="System::ErrorDescription"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="4000" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:EventHandler>
+  </DTS:EventHandlers>
 </DTS:Executable>
