@@ -1,0 +1,9 @@
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.dtproj.user
+*.pyc
+__pycache__/
+*.part
